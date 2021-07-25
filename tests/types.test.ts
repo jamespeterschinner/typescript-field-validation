@@ -1,16 +1,16 @@
-// import { SetRequired } from 'src';
+import { SetRequired } from "src";
 
-// type TestType1 = { a?: { b?: { c?: { d?: number } } } };
+describe("Typescript allows type assertion", () => {
+  it("Should not have any type errors", () => {
+    type Test = { a?: { b?: { c?: { d?: number } } } };
 
-// const testType1RequiredFields = ["a.b.c.d"] as const;
+    const testType1RequiredFields = ["a.b.c.d"] as const;
+    type ValidTest = SetRequired<Test, typeof testType1RequiredFields[number]>;
+    const result = { a: { b: { c: { d: 1 } } } } as ValidTest;
 
-// type ValidTestType1 = SetRequired<
-//   TestType1,
-//   typeof testType1RequiredFields[number]
-// >;
-
-
-// const result = { a: { b: { c: { d: 1 } } } } as ValidTestType1;
+    console.log(result);
+  });
+});
 
 // type Person = {
 //   firstName: string;
@@ -27,12 +27,12 @@
 //   lastName: "schinner",
 //   dependant: [
 //     {
-//       firstName: "lydia",
-//       lastName: "McCloskey",
+//       firstName: "a",
+//       lastName: "b",
 //       dependant: [
 //         {
 //           firstName: "max",
-//           lastName: "McCloskey",
+//           lastName: "b",
 //         },
 //       ],
 //     },
