@@ -1,5 +1,7 @@
 # typescript-field-validation
 
+[![Build Status](https://travis-ci.com/jamespeterschinner/typescript-field-validation.svg?branch=master)](https://travis-ci.com/jamespeterschinner/typescript-field-validation)
+
 Simple to use tool for basic `NonNullable` field validation when parsing data from an API.
 
 If you have autogeneated TS types from an openAPI schema, it's likely that many fields your application requires are defined as optional in the specification.
