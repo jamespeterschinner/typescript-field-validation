@@ -8,6 +8,6 @@ If you have auto-generated TS types from an openAPI schema, it's likely that man
 
 There are two tools exposed in this library which are designed to work together. The first tool is a conditional type `SetRequired` which allows you to take the types generated from the schema and declare specific fields to be `Required`. The second tool is a generic function `invalidFields` which returns the missing fields. `SetRequired` and `invalidFields` both take a `readonly string[]` as their second argument which is an array of required fields. This commonality allows you to declare the data your application expects once, and provides you with both the types and means to validate those types.
 
-The `invalidFields` function returns an array of missing fields, it is up to the user to use this information to customize error / warning messages or optionally assert the passed data as the `SetRequired` type.
+The `invalidFields` function returns an array of missing fields, it is up to the user to use this information to customize error / warning messages or optionally assert the passed data as the `SetRequired<BaseType, typeof requiredFields[number]>` type.
 
 A note of warning, this tool does not check that the values of the required fields are of the type defined by the base schema, this is assumed to be correct. Rather, it simply removes undefined and null from a field's union type.
