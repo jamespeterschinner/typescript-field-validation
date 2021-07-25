@@ -1,12 +1,12 @@
-type Field<T extends string> = T extends `${infer Field}.${string}` ? Field : T;
+type Field<T extends string> = T extends `${infer U}.${string}` ? U : T;
 
 type StripArray<T extends string> = T extends `${infer U}[]` ? U : T;
 
 type IsArray<T extends string> = T extends `${string}[]` ? true : false;
 
-type Rest<T extends string> = T extends `${string}.${infer Rest}`
-  ? Rest
-  : never;
+type Rest<T extends string> = T extends `${string}.${infer U}`
+  ? U
+  : false;
 
 export type SetRequired<T, NN extends string> = Pick<
   T,
