@@ -1,3 +1,4 @@
+import 'mocha';
 import { invalidFields } from "../src";
 import { expect } from "chai";
 

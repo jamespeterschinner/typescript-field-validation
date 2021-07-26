@@ -3,6 +3,7 @@
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "chai": "^4.3.4",
+    "conditional-type-checks": "^1.0.5",
     "mocha": "^9.0.2",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5"

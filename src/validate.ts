@@ -12,7 +12,7 @@ function IsNotFalse<T>(value: T | false): value is T {
   return value !== false;
 }
 
-function validate(
+function validateField(
   objectOrArray: Record<string, any> | any[],
   firstRest: string,
   index?: number
@@ -35,14 +35,14 @@ function validate(
   } else if (rest) {
     if (Array.isArray(value)) {
       const missingFields = value
-        .map((item, index) => validate(item, rest, index))
+        .map((item, index) => validateField(item, rest, index))
         .filter(IsNotFalse);
     if (missingFields.length > 0){
         return `${field}.${missingFields.join(' and .')}`
     }
 
     } else {
-      const missingField = validate(value, rest);
+      const missingField = validateField(value, rest);
       if (missingField) {
         return `${field}.${missingField}`;
       }
@@ -57,7 +57,7 @@ export function invalidFields<
   Valid extends SetRequired<T, R[number]>
 >(obj: T | Valid, required: R): string[] | null {
   const result = required
-    .map((fieldRest) => validate(obj, fieldRest))
+    .map((fieldRest) => validateField(obj, fieldRest))
     .filter(IsNotFalse);
 
   return result.length > 0 ? result : null;

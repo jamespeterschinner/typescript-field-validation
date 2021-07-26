@@ -10,7 +10,7 @@ type Rest<T extends string> = T extends `${string}.${infer U}`
 
 export type SetRequired<T, NN extends string> = Pick<
   T,
-  Exclude<keyof T, Field<NN>>
+  Exclude<keyof T, StripArray<Field<NN>>>
 > &
   {
     [K in Field<NN> as StripArray<K>]-?: StripArray<K> extends keyof T
