@@ -13,19 +13,26 @@
   "bugs": {
     "url": "https://github.com/jamespeterschinner/typescript-field-validation/issues"
   },
-  "files": ["lib/**/*"],
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "mocha -r ts-node/register 'tests/**/*.ts'",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
-    "prepare" : "npm run build",
-    "prepublishOnly" : "npm test && npm run lint",
-    "preversion" : "npm run lint",
-    "version" : "npm run format && git add -A src",
-    "postversion" : "git push && git push --tags"
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run format && git add -A src",
+    "postversion": "git push && git push --tags"
   },
-  "keywords": ["NonNullable", "Required", "SetRequired", "validation"],
+  "keywords": [
+    "NonNullable",
+    "Required",
+    "SetRequired",
+    "validation"
+  ],
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
