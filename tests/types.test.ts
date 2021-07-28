@@ -4,7 +4,7 @@ import { AssertTrue, IsExact } from "conditional-type-checks";
 type TestPassed<T> = [T] extends [never] ? true : false
 
 const test1RequiredFields = ["a"] as const;
-type Test1Base = { a?: any | null | undefined };
+type Test1Base = { a?: any | null };
 type Test1Expected = { a: any };
 type Test1Result = SetRequired<Test1Base, typeof test1RequiredFields[number]>;
 const test1Value: TestPassed<AssertTrue<IsExact<Test1Expected, Test1Result>>> = true;
@@ -12,7 +12,7 @@ const test1Value: TestPassed<AssertTrue<IsExact<Test1Expected, Test1Result>>> = 
 console.log(`SetRequired made option field required: ${test1Value}\n`);
 
 const test2RequiredFields = ["a.b"] as const;
-type Test2Base = { a: { b?: any | null | undefined } };
+type Test2Base = { a: { b?: any | null } };
 type Test2Expected = { a: { b: any } };
 type Test2Result = SetRequired<Test2Base, typeof test2RequiredFields[number]>;
 const test2Value: TestPassed<AssertTrue<IsExact<Test2Expected, Test2Result>>> = true;
@@ -58,45 +58,3 @@ type Test7Result = SetRequired<Test7Base, typeof test7RequiredFields[number]>;
 const test7Value: TestPassed<AssertTrue<IsExact<Test7Expected, Test7Result>>> = true;
 
 console.log(`SetRequired set recursively defined type depth to be required: ${test7Value}\n`);
-
-
-// type ValidTest = SetRequired<Test, typeof testType1RequiredFields[number]>;
-// const result = { a: { b: { c: { d: 1 } } } } as ValidTest;
-
-
-// type Person = {
-//   firstName: string;
-//   lastName: string;
-//   dependant?: Person[];
-// };
-
-// const person: Person = { firstName: "james", lastName: "schinner" };
-
-// type PersonWithDependant = SetRequired<Person, "dependant.dependant">;
-
-// const personWithDependant: PersonWithDependant = {
-//   firstName: "james",
-//   lastName: "schinner",
-//   dependant: [
-//     {
-//       firstName: "a",
-//       lastName: "b",
-//       dependant: [
-//         {
-//           firstName: "max",
-//           lastName: "b",
-//         },
-//       ],
-//     },
-//   ],
-// };
-
-// type Persons = SetRequired<Person, "dependant">;
-
-// type Test = Person[] | undefined extends (infer U)[]
-//   ? "dependant" extends keyof U
-//     ? true
-//     : false
-//   : false;
-
-// type Test2 = Field<"dependant">;
