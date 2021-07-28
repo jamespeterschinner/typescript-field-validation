@@ -43,3 +43,11 @@ const result = validate(dataFromAPI, requiredFields);
 
 ###### A note of warning: This tool does not check that the values of the required fields are of the type defined by the base schema, this is assumed to be correct. Rather, it simply removes undefined and null from a field's union type.
 
+<br>
+
+---
+
+## CHANGELOG
+
+- 1.0.01:
+    Update readme

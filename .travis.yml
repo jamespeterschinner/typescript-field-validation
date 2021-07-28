@@ -5,3 +5,4 @@ deploy:
   provider: npm
   edge: true
   email: james.peter.schinner@gmail.com
+  allow_failure: true # Will pass when a new version is released
