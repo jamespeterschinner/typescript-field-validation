@@ -4,3 +4,4 @@ node_js:
 deploy:
   provider: NPM
   edge: true
+  email: james.peter.schinner@gmail.com
