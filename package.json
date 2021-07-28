@@ -1,4 +1,6 @@
 {
+  "name": "typescript-field-validation",
+  "version": "1.0.0",
   "author": "James Peter Schinner",
   "homepage": "https://github.com/jamespeterschinner/typescript-field-validation",
   "description": "NonNullbale type manipulation and validaton",
