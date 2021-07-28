@@ -6,7 +6,7 @@ Simple to use tool for basic `NonNullable` field validation when parsing data fr
 
 If you have auto-generated TS types from an openAPI schema, it's likely that many fields your application requires are defined as optional in the specification.
 
-There are two tools exposed in this library which are designed to work together. The first tool is a conditional type `SetRequired` which allows you to take the types generated from the schema (which contain optional fields) and declare specific fields to be `Required`. The second tool is a generic function `validate` which returns a `Result` that either contains the missing field or the validated type. `SetRequired` and `validate` both take a `readonly string[]` as their second argument which is an array of required fields. This commonality allows you to declare the data your application expects once, and provides you with both the types and means to validate those types.
+There are two tools exposed in this library which are designed to work together. The first tool is a conditional type `SetRequired` which allows you to take the types generated from the schema (which contain optional fields) and declare specific fields to be `Required` and `NonNullable`. The second tool is a generic function `validate` which returns a `Result` that either contains the missing fields or the validated type. `SetRequired` and `validate` both use a `readonly string[]` as their second argument which is an array of required fields. This commonality allows you to declare the data your application expects once, and provides you with both the types and means to validate those types.
 
 
 
