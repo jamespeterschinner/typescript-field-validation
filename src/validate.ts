@@ -40,22 +40,32 @@ function validateField(objectOrArray: Record<string, any> | any[], firstRest: st
   }
   const value = (objectOrArray as Record<string, any>)[field];
 
+  // Perform the basic checks first and fail fast
   if (value === null) {
     return `${maybeIndex}${field} is null`;
   } else if (value === undefined) {
     return `${maybeIndex}${field} is undefined`;
-  } else if (fieldIsArray && !Array.isArray(value)) {
+  }
+
+  const valueIsArray = Array.isArray(value);
+
+  if (fieldIsArray && !valueIsArray) {
     return `${maybeIndex}${field} is not an array`;
   } else if (rest) {
+    if (!fieldIsArray && valueIsArray) {
+      // We only want to check this for chained fields
+      return `${maybeIndex}${field} is required to be an object, but found to be an array`;
+    }
+
     if (fieldIsArray) {
       const missingFields = (value as any[]).map((item, idx) => validateField(item, rest, idx)).filter(IsNotFalse);
       if (missingFields.length > 0) {
-        return `${field}${missingFields.join(` and ${field}`)}`;
+        return `${maybeIndex}${field}${missingFields.join(` and ${field}`)}`;
       }
     } else {
       const missingField = validateField(value, rest);
       if (missingField) {
-        return `${field}.${missingField}`;
+        return `${maybeIndex}${field}.${missingField}`;
       }
     }
   }
