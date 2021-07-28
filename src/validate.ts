@@ -84,5 +84,5 @@ export function validate<
   return {
     invalidFields,
     validType: invalidFields ? null : (obj as Valid),
-  };
+  } as Result<Valid>;
 }

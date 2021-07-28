@@ -14,8 +14,6 @@ There are two tools exposed in this library which are designed to work together.
 
 To specify a field as being required simply use that fields name. To specify a sub field on a field use dot notation `field.subField`. To specify a required field for every object in a field that is an array use `[]`. For example `fieldOne[].subField` would mean that `fieldOne` is an array and every member of that array needs to have a `subField`. 
 
-The array notation is only required when accessing a subField on that array, meaning that if an object has a field `a` which is an array, then there is no need to indicate this with the array notation.
-
 <br/>
 
 ## Example usage
@@ -79,6 +77,9 @@ const result2: ValidSchemaType = validate(
 ## CHANGELOG
 
 <br/>
+
+- 1.1.1:
+  Update Result type to be a exclusive or union of pass or fail types
 
 - 1.1.0:
   Improve error messages and add additional checks for object vs array fields
