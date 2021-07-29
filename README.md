@@ -78,6 +78,9 @@ const result2: ValidSchemaType = validate(
 
 <br/>
 
+- 1.1.2: 
+  Add MIT license
+
 - 1.1.1:
   Update Result type to be a exclusive or union of pass or fail types
 
