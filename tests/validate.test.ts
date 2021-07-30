@@ -90,7 +90,7 @@ describe('validate detects shape differences between required fields and actual 
 });
 
 describe('validate doesnt care if a field is an array when not explicitly required', () => {
-  it('should indicate field is an array, but is required to be an object', () => {
+  it('should return valid type', () => {
     expect(validate({ a: [] }, ['a']).validType).to.eql({ a: [] });
   });
 });
