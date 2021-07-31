@@ -27,7 +27,7 @@ function IsArrayNotation(field: string): boolean {
 }
 
 function validateBFS(
-  que: (() => Record<string, any> | null)[],
+  que: (() => void)[],
   objectOrArray: Record<string, any>,
   condensedFields: CondensedFields,
   failFast: boolean,
@@ -35,7 +35,9 @@ function validateBFS(
   let result: Record<string, any> | null = null;
 
   for (const [rawField, rest] of Object.entries(condensedFields)) {
-    console.log(rawField, rest);
+    if (failFast && result) {
+      return result;
+    }
     const fieldIsArray = IsArrayNotation(rawField);
 
     const field = fieldIsArray ? stripArrayNotation(rawField) : rawField;
@@ -45,7 +47,7 @@ function validateBFS(
     if (!hasAttribute) {
       result = result ?? {};
       result[field] = `is missing`;
-      return result;
+      continue;
     }
     const value = (objectOrArray as Record<string, any>)[field];
 
@@ -53,11 +55,11 @@ function validateBFS(
     if (value === null) {
       result = result ?? {};
       result[field] = `is null`;
-      return result;
+      continue;
     } else if (value === undefined) {
       result = result ?? {};
       result[field] = `is undefined`;
-      return result;
+      continue;
     }
 
     const valueIsArray = Array.isArray(value);
@@ -65,16 +67,17 @@ function validateBFS(
     if (fieldIsArray && !valueIsArray) {
       result = result ?? {};
       result[field] = `is required to be an array, but is a ${typeof value}`;
-      return result;
+      continue;
     }
 
     if (rest) {
+      // Delay the recursive call for later
       que.push(() => {
         if (!fieldIsArray && valueIsArray) {
           // We only want to check this for chained fields
           result = result ?? {};
           result[field] = `is required to be an object, but is an array`;
-          return result;
+          return true;
         }
         if (valueIsArray) {
           const intermediate = (value as any[])
@@ -83,23 +86,20 @@ function validateBFS(
           if (intermediate.length > 0) {
             result = result ?? {};
             result[field] = intermediate;
-            return result;
           }
         } else {
           const intermediate = validateBFS(que, value, rest, failFast);
           if (intermediate) {
             result = result ?? {};
             result[field] = intermediate;
-            return result;
           }
         }
-        return null;
       });
     }
   }
 
   let nextBranch = que.shift();
-  while (nextBranch) {
+  while (nextBranch && (failFast ? !result : true)) {
     nextBranch();
     nextBranch = que.shift();
   }
@@ -117,7 +117,6 @@ export function validate<
   let invalidFields = null;
 
   invalidFields = validateBFS([], obj, condensedFields, failFast);
-
   console.log(invalidFields);
   return {
     invalidFields,
