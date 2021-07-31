@@ -74,7 +74,7 @@ function validateBFS(
     }
     const value = (objectOrArray as Record<string, any>)[field];
 
-    // Perform the basic checks first and fail fast
+    // Perform the basic checks first
     if (value === null) {
       result = result ?? {};
       result[field] = `is null`;
@@ -146,7 +146,8 @@ export function validate<
   const condensedFields = condense(requiredFields);
 
   let invalidFields = validateBFS([], obj, condensedFields, options?.failFast ?? false);
-  invalidFields = invalidFields && !options?.rawFields ? formatResult(invalidFields, options?.includeIndex) : null;
+  invalidFields =
+    invalidFields && !options?.rawFields ? formatResult(invalidFields, options?.includeIndex) : invalidFields;
   return {
     invalidFields,
     validType: invalidFields ? null : (obj as Valid),
