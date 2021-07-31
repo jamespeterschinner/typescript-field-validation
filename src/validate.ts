@@ -26,12 +26,16 @@ function IsArrayNotation(field: string): boolean {
   return false;
 }
 
-const validateField =
-  (objectOrArray: Record<string, any> | any[], failFast: boolean) =>
-  (acc: Record<string, any> | null, [rawField, rest]: [string, CondensedFields | null]): Record<string, any> | null => {
-    if (failFast && acc) {
-      return acc;
-    }
+function validateBFS(
+  que: (() => Record<string, any> | null)[],
+  objectOrArray: Record<string, any>,
+  condensedFields: CondensedFields,
+  failFast: boolean,
+): Record<string, any> | null {
+  let result: Record<string, any> | null = null;
+
+  for (const [rawField, rest] of Object.entries(condensedFields)) {
+    console.log(rawField, rest);
     const fieldIsArray = IsArrayNotation(rawField);
 
     const field = fieldIsArray ? stripArrayNotation(rawField) : rawField;
@@ -39,59 +43,69 @@ const validateField =
     const hasAttribute = objectOrArray.hasOwnProperty(field);
 
     if (!hasAttribute) {
-      acc = acc ?? {};
-      acc[field] = `is missing`;
-      return acc;
+      result = result ?? {};
+      result[field] = `is missing`;
+      return result;
     }
     const value = (objectOrArray as Record<string, any>)[field];
 
     // Perform the basic checks first and fail fast
     if (value === null) {
-      acc = acc ?? {};
-      acc[field] = `is null`;
-      return acc;
+      result = result ?? {};
+      result[field] = `is null`;
+      return result;
     } else if (value === undefined) {
-      acc = acc ?? {};
-      acc[field] = `is undefined`;
-      return acc;
+      result = result ?? {};
+      result[field] = `is undefined`;
+      return result;
     }
 
     const valueIsArray = Array.isArray(value);
 
     if (fieldIsArray && !valueIsArray) {
-      acc = acc ?? {};
-      acc[field] = `is required to be an array, but is a ${typeof value}`;
-      return acc;
-    } else if (rest) {
-      if (!fieldIsArray && valueIsArray) {
-        // We only want to check this for chained fields
-        acc = acc ?? {};
-        acc[field] = `is required to be an object, but is an array`;
-        return acc;
-      }
-
-      const restEntries = Object.entries(rest);
-      if (valueIsArray) {
-        const intermediate = (value as any[])
-          .map((item: any) => restEntries.reduce(validateField(item, failFast), null))
-          .filter((identity) => identity);
-        if (intermediate.length > 0) {
-          acc = acc ?? {};
-          acc[field] = intermediate;
-          return acc;
-        }
-      } else {
-        const intermediate = restEntries.reduce(validateField(value, failFast), null);
-        if (intermediate) {
-          acc = acc ?? {};
-          acc[field] = intermediate;
-          return acc;
-        }
-      }
+      result = result ?? {};
+      result[field] = `is required to be an array, but is a ${typeof value}`;
+      return result;
     }
 
-    return acc;
-  };
+    if (rest) {
+      que.push(() => {
+        if (!fieldIsArray && valueIsArray) {
+          // We only want to check this for chained fields
+          result = result ?? {};
+          result[field] = `is required to be an object, but is an array`;
+          return result;
+        }
+        if (valueIsArray) {
+          const intermediate = (value as any[])
+            .map((item: any) => validateBFS(que, item, rest, failFast))
+            .filter((identity) => identity);
+          if (intermediate.length > 0) {
+            result = result ?? {};
+            result[field] = intermediate;
+            return result;
+          }
+        } else {
+          const intermediate = validateBFS(que, value, rest, failFast);
+          if (intermediate) {
+            result = result ?? {};
+            result[field] = intermediate;
+            return result;
+          }
+        }
+        return null;
+      });
+    }
+  }
+
+  let nextBranch = que.shift();
+  while (nextBranch) {
+    nextBranch();
+    nextBranch = que.shift();
+  }
+
+  return result;
+}
 
 export function validate<
   T extends Record<string, any> | any[],
@@ -102,7 +116,7 @@ export function validate<
 
   let invalidFields = null;
 
-  invalidFields = Object.entries<CondensedFields | null>(condensedFields).reduce(validateField(obj, failFast), null);
+  invalidFields = validateBFS([], obj, condensedFields, failFast);
 
   console.log(invalidFields);
   return {

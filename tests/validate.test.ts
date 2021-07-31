@@ -2,6 +2,28 @@ import 'mocha';
 import { validate } from '../src';
 import { expect } from 'chai';
 
+describe('validate returns valid type when no fields are required', () => {
+  it('should return the validType in the result', () => {
+    expect(validate({ a: 1234 }, []).validType).to.eql({ a: 1234 });
+  });
+});
+
+describe('validate returns valid type when required fields are present', () => {
+  it('should return the valid data', () => {
+    expect(validate({ a: 1 }, ['a'])).to.eql({ invalidFields: null, validType: { a: 1 } });
+    expect(validate({ a: { b: 1 } }, ['a.b'])).to.eql({ invalidFields: null, validType: { a: { b: 1 } } });
+
+    const validExample3 = { a: { b: [{ c: 1 }, { c: 2 }] } };
+    expect(validate(validExample3, ['a.b[].c'])).to.eql({ invalidFields: null, validType: validExample3 });
+
+    const validExample4 = { ...validExample3, d: { e: [{ f: [{ g: true }] }] } };
+    expect(validate(validExample4, ['a.b[].c', 'd.e[].f[].g'])).to.eql({
+      invalidFields: null,
+      validType: validExample4,
+    });
+  });
+});
+
 describe('validate returns missing field at single depth', () => {
   it('should list the missing field', () => {
     const requiredFields = ['a'] as const;
@@ -29,12 +51,6 @@ describe('validate returns missing field at 3rd depth', () => {
   });
 });
 
-describe('validate returns valid type when no fields are required', () => {
-  it('should return the validType in the result', () => {
-    expect(validate({ a: 1234 }, []).validType).to.eql({ a: 1234 });
-  });
-});
-
 describe('validate returns missing field on array element', () => {
   it('should list the missing field', () => {
     const requiredFields = ['a[].b'] as const;
@@ -42,6 +58,23 @@ describe('validate returns missing field on array element', () => {
     expect(validate({ a: [{ b: null }] }, requiredFields).invalidFields).to.eql(['a[0].b is null']);
     expect(validate({ a: [{ b: undefined }] }, requiredFields).invalidFields).to.eql(['a[0].b is undefined']);
   });
+});
+
+describe('validate performs breadth first search', () => {
+  // it('should identify a missing field at 0 depth before finding one at a higher depth', () => {
+  //   const requiredFields = ['a.b', 'c'] as const;
+  //   expect(validate({ a: {} }, requiredFields).invalidFields).to.eql(['c is missing']);
+  //   expect(validate({ a: {}, c: null }, requiredFields).invalidFields).to.eql(['c is null']);
+  //   expect(validate({ a: {}, c: undefined }, requiredFields).invalidFields).to.eql(['c is undefined']);
+  // }),
+
+  it('should identify a missing field at 1 depth before finding one at a higher depth', () => {
+    const requiredFields = ['a.b.c', 'd.e'] as const;
+    expect(validate({ a: {b: {}}, d: {} }, requiredFields).invalidFields).to.eql(['c is missing']);
+    expect(validate({ a: {b: {}}, d: {e: null} }, requiredFields).invalidFields).to.eql(['c is null']);
+    expect(validate({ a: {b: {}}, d: {e: undefined} }, requiredFields).invalidFields).to.eql(['c is undefined']);
+  });
+
 });
 
 describe('validate returns missing fields on array element with multiple indices', () => {
@@ -56,22 +89,6 @@ describe('validate returns missing fields on array element with multiple indices
       'a[0].b is undefined and a[1].b is missing',
       'a[0].c is missing and a[1].c is undefined',
     ]);
-  });
-});
-
-describe('validate returns valid type when required fields are present', () => {
-  it('should return the valid data', () => {
-    expect(validate({ a: 1 }, ['a'])).to.eql({ invalidFields: null, validType: { a: 1 } });
-    expect(validate({ a: { b: 1 } }, ['a.b'])).to.eql({ invalidFields: null, validType: { a: { b: 1 } } });
-
-    const validExample3 = { a: { b: [{ c: 1 }, { c: 2 }] } };
-    expect(validate(validExample3, ['a.b[].c'])).to.eql({ invalidFields: null, validType: validExample3 });
-
-    const validExample4 = { ...validExample3, d: { e: [{ f: [{ g: true }] }] } };
-    expect(validate(validExample4, ['a.b[].c', 'd.e[].f[].g'])).to.eql({
-      invalidFields: null,
-      validType: validExample4,
-    });
   });
 });
 
