@@ -26,6 +26,29 @@ function IsArrayNotation(field: string): boolean {
   return false;
 }
 
+function flattenResult(result: Record<string, any>, includeIndex = true, top = true): string[] {
+  if (typeof result === 'string') {
+    return [`:${result}`];
+  }
+  const isArray = Array.isArray(result);
+  const concatFunc: (key: string) => (str: string) => string = top
+    ? (key) => (str) => `${key}${str}`
+    : isArray
+    ? includeIndex
+      ? (key) => (str) => `[${key}]${str}`
+      : () => (str) => `[]${str}`
+    : (key) => (str) => `.${key}${str}`;
+
+  return Object.entries(result).flatMap(([key, value]) =>
+    flattenResult(value, includeIndex, false).map(concatFunc(key)),
+  );
+}
+
+function formatResult(result: Record<string, any>, includeIndex = true): Record<string, string> {
+  const flattenedResult = flattenResult(result, includeIndex, true);
+  return Object.fromEntries(flattenedResult.map((fr) => fr.split(':')));
+}
+
 function validateBFS(
   que: (() => void)[],
   objectOrArray: Record<string, any>,
@@ -80,9 +103,13 @@ function validateBFS(
           return true;
         }
         if (valueIsArray) {
-          const intermediate = (value as any[])
-            .map((item: any) => validateBFS(que, item, rest, failFast))
-            .filter((identity) => identity);
+          const intermediate = (value as any[]).reduce((acc, item: any) => {
+            const maybeResult = validateBFS(que, item, rest, failFast);
+            if (maybeResult) {
+              acc.push(maybeResult);
+            }
+            return acc;
+          }, []);
           if (intermediate.length > 0) {
             result = result ?? {};
             result[field] = intermediate;
@@ -111,13 +138,15 @@ export function validate<
   T extends Record<string, any> | any[],
   R extends readonly string[],
   Valid extends SetRequired<T, R[number]>,
->(obj: T | Valid, requiredFields: R, failFast = true): Result<Valid> {
+>(
+  obj: T | Valid,
+  requiredFields: R,
+  options?: { failFast?: true; rawFields?: true; includeIndex?: false },
+): Result<Valid> {
   const condensedFields = condense(requiredFields);
 
-  let invalidFields = null;
-
-  invalidFields = validateBFS([], obj, condensedFields, failFast);
-  console.log(invalidFields);
+  let invalidFields = validateBFS([], obj, condensedFields, options?.failFast ?? false);
+  invalidFields = invalidFields && !options?.rawFields ? formatResult(invalidFields, options?.includeIndex) : null;
   return {
     invalidFields,
     validType: invalidFields ? null : (obj as Valid),
