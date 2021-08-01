@@ -1,6 +1,6 @@
 import 'mocha';
 import { assert } from 'chai';
-import { SetRequired } from 'src';
+import { SetRequired } from '../src/types';
 import { AssertTrue, IsExact } from 'conditional-type-checks';
 
 type TestPassed<T> = [T] extends [never] ? true : false;

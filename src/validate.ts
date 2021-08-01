@@ -1,4 +1,4 @@
-import { SetRequired, Result } from 'src';
+import { SetRequired, Result } from './types';
 
 type CondensedFields = { [key: string]: CondensedFields | null };
 
