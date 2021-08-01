@@ -1,4 +1,4 @@
-import { SetRequired, Result } from './types';
+import { SetRequired } from './set-required';
 
 type CondensedFields = { [key: string]: CondensedFields | null };
 
@@ -134,15 +134,30 @@ function validateBFS(
   return result;
 }
 
+type Result<T, E> =
+  | {
+      invalidFields: null;
+      validType: T;
+    }
+  | {
+      invalidFields: E;
+      validType: null;
+    };
+
+interface RawFields {
+  [key: string]: RawFields | RawFields[] | string;
+}
+
+type Return<T, Options> = Options extends { rawFields: true }
+  ? Result<T, RawFields>
+  : Result<T, Record<string, string>>;
+
 export function validate<
   T extends Record<string, any>,
-  R extends readonly string[],
-  Valid extends SetRequired<T, R[number]>,
->(
-  obj: T | Valid,
-  requiredFields: R,
-  options?: { failFast?: boolean; rawFields?: boolean; includeIndex?: boolean },
-): Result<Valid> {
+  Required extends readonly string[],
+  Valid extends SetRequired<T, Required[number]>,
+  Options extends { failFast?: boolean; rawFields?: boolean; includeIndex?: boolean },
+>(obj: T | Valid, requiredFields: Required, options?: Options): Return<Valid, Options> {
   const condensedFields = condense(requiredFields);
 
   let invalidFields = validateBFS([], obj, condensedFields, options?.failFast ?? false);
@@ -151,5 +166,5 @@ export function validate<
   return {
     invalidFields,
     validType: invalidFields ? null : (obj as Valid),
-  } as Result<Valid>;
+  } as Return<Valid, Options>;
 }

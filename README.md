@@ -41,15 +41,15 @@ const requiredFields = ['id', 'item.items[].id', 'item.items[].value', 'date'] a
 
 type TypeWithNonOptionFields = SetRequired<TypeWithOptionalFields, typeof requiredFields[number]>;
 
-const invalidDataFromAPI = {
+const invalidData = {
   id: '12345',
   item: {
     items: [{ value: 'hello world' }],
   },
 };
 
-// Default: Provides maximum information regarding what fields were missing.
-const result1 = validate(invalidDataFromAPI, requiredFields);
+// Default: Provides maximum information regarding what fields were missing
+const result1 = validate(invalidData, requiredFields);
 console.log('Default', result1);
 /**
 {
@@ -59,7 +59,7 @@ console.log('Default', result1);
  */
 
 // No index: Removes the array index for missing fields.
-const result2 = validate(invalidDataFromAPI, requiredFields, {
+const result2 = validate(invalidData, requiredFields, {
   includeIndex: false,
 });
 console.log('No array index', result2);
@@ -70,8 +70,8 @@ console.log('No array index', result2);
 }
 */
 
-// Fail fast: Returns the first failure at the lowest depth.
-const result3 = validate(invalidDataFromAPI, requiredFields, {
+// Fail fast: Returns the first failure at the lowest depth
+const result3 = validate(invalidData, requiredFields, {
   failFast: true,
 });
 console.log(result3);
@@ -79,8 +79,8 @@ console.log(result3);
  { invalidFields: { date: 'is missing' }, validType: null }
  */
 
-// Raw fields: Returns an error object whose shape reflects the data.
-const result4 = validate(invalidDataFromAPI, requiredFields, {
+// Raw fields: Returns an error object whose shape mimicks the data
+const result4 = validate(invalidData, requiredFields, {
   rawFields: true,
 });
 console.log(JSON.stringify(result4, null, 2));
@@ -100,7 +100,7 @@ console.log(JSON.stringify(result4, null, 2));
 }
  */
 
-const validDataFromAPI = {
+const validData = {
   id: '12345',
   item: {
     items: [{ id: 'myId', value: 'hello world' }],
@@ -108,7 +108,7 @@ const validDataFromAPI = {
   date: 1627787814504,
 };
 
-const result5: TypeWithNonOptionFields | null = validate(validDataFromAPI, requiredFields).validType;
+const result5: TypeWithNonOptionFields | null = validate(validData, requiredFields).validType;
 
 if (result5) {
   console.log(true);
@@ -135,8 +135,15 @@ if (result5) {
 <br/>
 
 - 2.0.0:
-  - `validate` function uses a breadth first search over a generated search graph of required fields.
+
+  - `validate` function uses a breadth first search over a generated search graph
   - `validate` function takes additional parameters to failFast and other formatting options of error messages
+
+  ### Breaking changes:
+
+  - Package now targets `es2019`
+  - `validate` now returns missing fields as a `Record<field, error message>`
+  - `validate` now optionally returns missing fields in the same shape as the provided data when the `rawFields` option is set to `true`.
 
 <br/>
 

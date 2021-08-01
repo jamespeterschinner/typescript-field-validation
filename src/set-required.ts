@@ -23,12 +23,4 @@ export type SetRequired<T, NN extends string> = Pick<T, Exclude<keyof T, StripAr
       : never; // Field must be in type T
   };
 
-export type Result<T> =
-  | {
-      invalidFields: null;
-      validType: T;
-    }
-  | {
-      invalidFields: string[];
-      validType: null;
-    };
+
