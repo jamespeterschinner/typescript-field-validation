@@ -5,7 +5,7 @@ type CondensedFields = { [key: string]: CondensedFields | null };
 function merge(acc: CondensedFields, fields: string[]): CondensedFields {
   const field = fields.shift();
   if (field) {
-    acc[field] = fields.length ? merge(acc[field] ?? {}, fields) : acc[field] ?? null;
+    acc[field] = fields.length ? merge(acc[field] ?? {}, fields) : acc[field];
   }
 
   return acc;
@@ -26,7 +26,7 @@ function IsArrayNotation(field: string): boolean {
   return false;
 }
 
-function flattenResult(result: Record<string, any>, includeIndex = true, top = true): string[] {
+function flattenResult(result: Record<string, any> | string, includeIndex = true, top = true): string[] {
   if (typeof result === 'string') {
     return [`:${result}`];
   }
@@ -51,9 +51,9 @@ function formatResult(result: Record<string, any>, includeIndex = true): Record<
 
 function validateBFS(
   que: (() => void)[],
-  objectOrArray: Record<string, any>,
+  obj: Record<string, any>,
   condensedFields: CondensedFields,
-  failFast: boolean,
+  failFast = false,
 ): Record<string, any> | null {
   let result: Record<string, any> | null = null;
 
@@ -65,14 +65,14 @@ function validateBFS(
 
     const field = fieldIsArray ? stripArrayNotation(rawField) : rawField;
 
-    const hasAttribute = objectOrArray.hasOwnProperty(field);
+    const hasAttribute = obj.hasOwnProperty(field);
 
     if (!hasAttribute) {
       result = result ?? {};
       result[field] = `is missing`;
       continue;
     }
-    const value = (objectOrArray as Record<string, any>)[field];
+    const value = (obj as Record<string, any>)[field];
 
     // Perform the basic checks first
     if (value === null) {
@@ -135,13 +135,13 @@ function validateBFS(
 }
 
 export function validate<
-  T extends Record<string, any> | any[],
+  T extends Record<string, any>,
   R extends readonly string[],
   Valid extends SetRequired<T, R[number]>,
 >(
   obj: T | Valid,
   requiredFields: R,
-  options?: { failFast?: true; rawFields?: true; includeIndex?: false },
+  options?: { failFast?: boolean; rawFields?: boolean; includeIndex?: boolean },
 ): Result<Valid> {
   const condensedFields = condense(requiredFields);
 

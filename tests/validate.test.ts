@@ -31,6 +31,23 @@ describe('validate returns missing field at single depth', () => {
     expect(validate({ a: null }, requiredFields).invalidFields).to.eql({ a: 'is null' });
     expect(validate({ a: undefined }, requiredFields).invalidFields).to.eql({ a: 'is undefined' });
   });
+  it('should list all the missing fields', () => {
+    const requiredFields = ['a', 'b'] as const;
+    expect(validate({}, requiredFields).invalidFields).to.eql({ a: 'is missing', b: 'is missing' });
+    expect(validate({ a: null, b: null }, requiredFields).invalidFields).to.eql({ a: 'is null', b: 'is null' });
+    expect(validate({ a: undefined, b: undefined }, requiredFields).invalidFields).to.eql({
+      a: 'is undefined',
+      b: 'is undefined',
+    });
+  });
+  it('should list the first missing field', () => {
+    const requiredFields = ['a', 'b'] as const;
+    expect(validate({}, requiredFields, { failFast: true }).invalidFields).to.eql({ a: 'is missing' });
+    expect(validate({ a: null }, requiredFields, { failFast: true }).invalidFields).to.eql({ a: 'is null' });
+    expect(validate({ a: undefined }, requiredFields, { failFast: true }).invalidFields).to.eql({
+      a: 'is undefined',
+    });
+  });
 });
 
 describe('validate returns missing field at 2nd depth', () => {
@@ -39,6 +56,10 @@ describe('validate returns missing field at 2nd depth', () => {
     expect(validate({ a: {} }, requiredFields).invalidFields).to.eql({ 'a.b': 'is missing' });
     expect(validate({ a: { b: null } }, requiredFields).invalidFields).to.eql({ 'a.b': 'is null' });
     expect(validate({ a: { b: undefined } }, requiredFields).invalidFields).to.eql({ 'a.b': 'is undefined' });
+    expect(validate({ a: { b: undefined } }, ['c', 'a.b']).invalidFields).to.eql({
+      c: 'is missing',
+      'a.b': 'is undefined',
+    });
   });
 });
 
@@ -52,12 +73,18 @@ describe('validate returns missing field at 3rd depth', () => {
 });
 
 describe('validate returns missing field on array element', () => {
-  it('should list the missing field', () => {
+  it('should list the missing field with the index', () => {
     const requiredFields = ['a[].b'] as const;
     expect(validate({ a: [{}] }, requiredFields).invalidFields).to.eql({ 'a[0].b': 'is missing' });
     expect(validate({ a: [{ b: null }] }, requiredFields).invalidFields).to.eql({ 'a[0].b': 'is null' });
     expect(validate({ a: [{ b: undefined }] }, requiredFields).invalidFields).to.eql({ 'a[0].b': 'is undefined' });
-
+    expect(validate({ a: [{ b: undefined }] }, ['c', 'a[].b']).invalidFields).to.eql({
+      c: 'is missing',
+      'a[0].b': 'is undefined',
+    });
+  });
+  it('should list the missing field without the index', () => {
+    const requiredFields = ['a[].b'] as const;
     expect(validate({ a: [{}] }, requiredFields, { includeIndex: false }).invalidFields).to.eql({
       'a[].b': 'is missing',
     });
@@ -67,6 +94,16 @@ describe('validate returns missing field on array element', () => {
     expect(validate({ a: [{ b: undefined }] }, requiredFields, { includeIndex: false }).invalidFields).to.eql({
       'a[].b': 'is undefined',
     });
+  });
+  it('should list the missing field with the index by default', () => {
+    const requiredFields = ['a[].b'] as const;
+    expect(validate({ a: [{}] }, requiredFields, { includeIndex: true })).to.eql(validate({ a: [{}] }, requiredFields));
+    expect(validate({ a: [{ b: null }] }, requiredFields, { includeIndex: true })).to.eql(
+      validate({ a: [{ b: null }] }, requiredFields),
+    );
+    expect(validate({ a: [{ b: undefined }] }, requiredFields, { includeIndex: true })).to.eql(
+      validate({ a: [{ b: undefined }] }, requiredFields),
+    );
   });
 });
 
@@ -132,6 +169,14 @@ describe('validate returns missing fields on array element with multiple indices
 describe('validate detects shape differences between required fields and actual data', () => {
   it('should indicate field is not an array, but is required to be so', () => {
     expect(validate({ a: 1 }, ['a[]']).invalidFields).to.eql({ a: 'is required to be an array, but is a number' });
+    expect(validate({ b: 1 }, ['a', 'b[]']).invalidFields).to.eql({
+      a: 'is missing',
+      b: 'is required to be an array, but is a number',
+    });
+    expect(validate({ b: [] }, ['a', 'b.c']).invalidFields).to.eql({
+      a: 'is missing',
+      b: 'is required to be an object, but is an array',
+    });
   });
 });
 
