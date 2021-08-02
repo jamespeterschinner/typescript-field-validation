@@ -1,6 +1,6 @@
 import { SetRequired } from './set-required';
 
-type CondensedFields = { [key: string]: CondensedFields | null };
+type CondensedFields = { [key: string]: CondensedFields | undefined };
 
 function merge(acc: CondensedFields, fields: string[]): CondensedFields {
   const field = fields.shift();
@@ -103,16 +103,19 @@ function validateBFS(
           return true;
         }
         if (valueIsArray) {
-          const intermediate = (value as any[]).reduce((acc, item: any) => {
+          const acc: (Record<string, any> | null)[] = [];
+          for (const item of value as any[]) {
             const maybeResult = validateBFS(que, item, rest, failFast);
             if (maybeResult) {
               acc.push(maybeResult);
+              if (failFast) {
+                break;
+              }
             }
-            return acc;
-          }, []);
-          if (intermediate.length > 0) {
+          }
+          if (acc.length > 0) {
             result = result ?? {};
-            result[field] = intermediate;
+            result[field] = acc;
           }
         } else {
           const intermediate = validateBFS(que, value, rest, failFast);

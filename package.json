@@ -1,6 +1,6 @@
 {
   "name": "typescript-field-validation",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "James Peter Schinner",
   "homepage": "https://github.com/jamespeterschinner/typescript-field-validation",
   "description": "NonNullbale type manipulation and validaton",
@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "mocha -r ts-node/register 'tests/**/*.ts'",
+    "test": "mocha --slow 0 -r ts-node/register 'tests/**/*.ts'",
     "coverage": "nyc --reporter=html mocha -r ts-node/register 'tests/**/*.ts'",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "lint": "tslint -p tsconfig.json",
@@ -38,6 +38,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
+    "@types/node": "^16.4.10",
     "chai": "^4.3.4",
     "conditional-type-checks": "^1.0.5",
     "mocha": "^9.0.2",

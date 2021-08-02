@@ -1,6 +1,9 @@
 import 'mocha';
-import { validate } from '../src';
+import { SetRequired, validate } from '../src';
 import { expect } from 'chai';
+
+import { ExampleType } from './example-data-type';
+const exampleData = require('./example-data.json');
 
 describe('validate returns valid type when no fields are required', () => {
   it('should return the validType in the result', () => {
@@ -211,5 +214,53 @@ describe('validate detects nested shape differences between required fields and 
     expect(validate({ a: { b: [{ c: [] }] } }, ['a.b[].c.d'], { includeIndex: false }).invalidFields).to.eql({
       'a.b[].c': 'is required to be an object, but is an array',
     });
+  });
+});
+
+describe('Test validate with real world example', () => {
+  const requiredFields = [
+    'items[]._id',
+    'items[].index',
+    'items[].guid',
+    'items[].isActive',
+    'items[].balance',
+    'items[].picture',
+    'items[].age',
+    'items[].eyeColor',
+    'items[].name',
+    'items[].gender',
+    'items[].company',
+    'items[].email',
+    'items[].phone',
+    'items[].address',
+    'items[].about',
+    'items[].registered',
+    'items[].latitude',
+    'items[].longitude',
+    'items[].tags[]',
+    'items[].friends[].id',
+    'items[].friends[].name',
+    'items[].greeting',
+    'items[].favoriteFruit',
+  ] as const;
+  type ValidExampleData = SetRequired<ExampleType, typeof requiredFields[number]>;
+  it('should validate the example data against the required fields', () => {
+    const result: ValidExampleData | null = validate(exampleData, requiredFields).validType;
+    expect(result).to.eql(exampleData);
+  });
+
+  it('should return missing field', () => {
+    const result = validate(exampleData, [...requiredFields, 'items[].friends[].value'], {
+      failFast: true,
+      includeIndex: false,
+    });
+    expect(result).to.eql({ invalidFields: { 'items[].friends[].value': 'is missing' }, validType: null });
+  });
+
+  it('should return missing field with index', () => {
+    const result = validate(exampleData, [...requiredFields, 'items[].friends[].value'], {
+      failFast: true,
+    });
+    expect(result).to.eql({ invalidFields: { 'items[0].friends[0].value': 'is missing' }, validType: null });
   });
 });

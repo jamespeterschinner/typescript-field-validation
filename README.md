@@ -122,7 +122,7 @@ if (result5) {
 
 <br/>
 
-###### A note of warning: This tool does not check that the values of the required fields are of the type defined by the base schema, this is assumed to be correct. Rather, it simply removes undefined and null from a field's union type.
+###### A note of warning: This tool does not check that the values of the required fields are of the type defined by the base type, this is assumed to be correct. Rather, it simply makes a field required and removes `undefined | null` from the fields union type.
 
 <br>
 
@@ -133,6 +133,8 @@ if (result5) {
 ## CHANGELOG
 
 <br/>
+
+- 2.0.1: Fix: failFast option returns single result for array fields.
 
 - 2.0.0:
 
