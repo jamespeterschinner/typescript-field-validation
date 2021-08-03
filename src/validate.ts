@@ -15,17 +15,6 @@ function condense(fields: readonly string[]): CondensedFields {
   return fields.map((field) => field.split('.')).reduce(merge, {});
 }
 
-function stripArrayNotation(field: string): string {
-  return field.slice(0, field.length - 2);
-}
-
-function IsArrayNotation(field: string): boolean {
-  if (field[field.length - 1] === ']') {
-    return true;
-  }
-  return false;
-}
-
 function flattenResult(result: Record<string, any> | string, includeIndex = true, top = true): string[] {
   if (typeof result === 'string') {
     return [`:${result}`];
@@ -61,9 +50,11 @@ function validateBFS(
     if (failFast && result) {
       return result;
     }
-    const fieldIsArray = IsArrayNotation(rawField);
+    // Is array nottation?
+    const fieldIsArray = rawField[rawField.length - 1] === ']';
 
-    const field = fieldIsArray ? stripArrayNotation(rawField) : rawField;
+    // Remove the array notation
+    const field = fieldIsArray ? rawField.slice(0, rawField.length - 2) : rawField;
 
     const hasAttribute = obj.hasOwnProperty(field);
 
