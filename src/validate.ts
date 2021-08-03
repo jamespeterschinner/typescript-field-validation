@@ -157,7 +157,6 @@ export function validate<
   const condensedFields = condense(requiredFields);
 
   let invalidFields = validateBFS([], obj, condensedFields, options?.failFast ?? false);
-  console.log(invalidFields);
   invalidFields =
     invalidFields && !options?.rawFields ? formatResult(invalidFields, options?.includeIndex) : invalidFields;
 

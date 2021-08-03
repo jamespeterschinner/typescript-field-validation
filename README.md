@@ -74,7 +74,7 @@ console.log('No array index', result2);
 const result3 = validate(invalidData, requiredFields, {
   failFast: true,
 });
-console.log(result3);
+console.log('Fail fast', result3);
 /**
  { invalidFields: { date: 'is missing' }, validType: null }
  */
@@ -83,7 +83,7 @@ console.log(result3);
 const result4 = validate(invalidData, requiredFields, {
   rawFields: true,
 });
-console.log(JSON.stringify(result4, null, 2));
+console.log('Raw fields', JSON.stringify(result4, null, 2));
 /**
  {
   "invalidFields": {
@@ -111,7 +111,7 @@ const validData = {
 const result5: TypeWithNonOptionFields | null = validate(validData, requiredFields).validType;
 
 if (result5) {
-  console.log(true);
+  console.log('Result is valid type: 'true);
   // true
 }
 ```
