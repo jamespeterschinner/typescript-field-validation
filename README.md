@@ -134,9 +134,11 @@ if (result5) {
 
 <br/>
 
-- 2.0.2: Inlining of small helper functions to minimize code.
+- 2.0.3: Fix: Missing array items keep their index when previous elements passed
 
-- 2.0.1: Fix: failFast option returns single result for array fields.
+- 2.0.2: Inlining of small helper functions to minimize code
+
+- 2.0.1: Fix: failFast option returns single result for array fields
 
 - 2.0.0:
 

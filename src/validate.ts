@@ -94,17 +94,19 @@ function validateBFS(
           return true;
         }
         if (valueIsArray) {
-          const acc: (Record<string, any> | null)[] = [];
-          for (const item of value as any[]) {
+          let hasInvalidField: boolean = false;
+          const acc: (Record<string, any> | undefined)[] = Array(value.length);
+          for (const [idx, item] of value.entries()) {
             const maybeResult = validateBFS(que, item, rest, failFast);
             if (maybeResult) {
-              acc.push(maybeResult);
+              hasInvalidField = true;
+              acc[idx] = maybeResult;
               if (failFast) {
                 break;
               }
             }
           }
-          if (acc.length > 0) {
+          if (hasInvalidField) {
             result = result ?? {};
             result[field] = acc;
           }
@@ -155,8 +157,10 @@ export function validate<
   const condensedFields = condense(requiredFields);
 
   let invalidFields = validateBFS([], obj, condensedFields, options?.failFast ?? false);
+  console.log(invalidFields);
   invalidFields =
     invalidFields && !options?.rawFields ? formatResult(invalidFields, options?.includeIndex) : invalidFields;
+
   return {
     invalidFields,
     validType: invalidFields ? null : (obj as Valid),

@@ -85,6 +85,7 @@ describe('validate returns missing field on array element', () => {
       c: 'is missing',
       'a[0].b': 'is undefined',
     });
+    expect(validate({ a: [{ b: 1 }, {}] }, requiredFields).invalidFields).to.eql({ 'a[1].b': 'is missing' });
   });
   it('should list the missing field without the index', () => {
     const requiredFields = ['a[].b'] as const;
